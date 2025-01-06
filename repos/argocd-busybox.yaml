@@ -1,0 +1,137 @@
+key:
+- namespace: dev
+  env: dev
+  cluster: dev-global-cluster-0
+  app:
+    name: spring-boot-api
+  values: |
+    namespace: dev
+    env: dev
+    app:
+      name: spring-boot-api
+    configMap:
+      name: spring-boot-api-cm
+      namespace: dev
+      cofig:
+        version: 1.0.0
+        log:
+          level: info
+          output: stdout
+    service:
+      name: spring-boot-api-service
+      ports:
+      - name: api
+        port: 8080
+        targetPort: 8080
+      - name: logs
+        port: 8081
+        targetPort: 8081
+      - name: soap
+        port: 8082
+        targetPort: 8082
+    deployment:
+      name: spring-boot-api-deployment
+      replicas: 3
+      image:
+        repository: busybox
+        tag: stable
+      volume:
+        name: config-volume
+        mountPath: /app/config.json
+        subPath: config.json
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+      resources:
+        limits:
+          memory: "768Mi"
+          cpu: "500m"
+        requests:
+          memory: "512Mi"
+          cpu: "20m"
+      ports:
+        - name: api
+          containerPort: 8080
+        - name: logs
+          containerPort: 8081
+        - name: soap
+          containerPort: 8082
+      probe:
+        port: api
+        initialDelaySeconds: 15
+        periodSeconds: 10
+    secret:
+      name: spring-boot-api-secret
+    ingress:
+      name: spring-boot-api-ingress
+      host: spring-boot-api-dev.com
+- namespace: prd
+  env: prd
+  cluster: prd-global-cluster-5
+  app:
+    name: spring-boot-api
+  values: |
+    namespace: prd
+    env: prd
+    app:
+      name: spring-boot-api
+    configMap:
+      name: spring-boot-api-cm
+      namespace: dev
+      cofig:
+        version: 1.0.0
+        log:
+          level: debug
+          output: stdout
+    service:
+      name: spring-boot-api-service
+      ports:
+      - name: api
+        port: 8080
+        targetPort: 8080
+      - name: logs
+        port: 8081
+        targetPort: 8081
+      - name: soap
+        port: 8082
+        targetPort: 8082
+    deployment:
+      name: spring-boot-api-deployment
+      replicas: 5
+      image:
+        repository: busybox
+        tag: stable
+      volume:
+        name: config-volume
+        mountPath: /app/config.json
+        subPath: config.json
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+      resources:
+        limits:
+          memory: "768Mi"
+          cpu: "500m"
+        requests:
+          memory: "512Mi"
+          cpu: "20m"
+      ports:
+        - name: api
+          containerPort: 8080
+        - name: logs
+          containerPort: 8081
+        - name: soap
+          containerPort: 8082
+      probe:
+        port: api
+        initialDelaySeconds: 15
+        periodSeconds: 10
+    secret:
+      name: spring-boot-api-secret
+    ingress:
+      name: spring-boot-api-ingress
+      host: spring-boot-api-prd.com
